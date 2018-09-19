@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>radiobutton-checked.png</file>
+        <file>ledonhigh.png</file>
+        <file>ledonlow.png</file>
+        <file>whitedot.png</file>
+        <file>ledoff.png</file>
+        <file>reddot.png</file>
+        <file>Black_dot.png</file>
+    </qresource>
+</RCC>
