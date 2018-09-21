@@ -1,38 +1,33 @@
 #ifndef TEST_H
 #define TEST_H
-#include "mainwindow.h"
-class Test{
-
+#include <QObject>
+//class Test
+//{
+//public:
+//    Test();
+//    void setup();
+//    void loop();
+//signals:
+//    void delay(int x);
+//    void pinMode(int i,int mode);
+//    void digitalWrite(int i, bool value);
+//    bool digitalRead(int i);
+//    int  analogRead(int i);
+//    void analogWrite(int i, int value);
+//};
+class Test : public QObject
+{
+    Q_OBJECT
 public:
+    Test();
     void setup();
     void loop();
-    void delay(int x){
-        MainWindow m;
-        m.delay(x);
-    }
-    void pinMode(int i,int mode){
-        MainWindow m;
-        m.pinMode(i,mode);
-    }
-
-    void digitalWrite(int i, bool value){
-        MainWindow m;
-        m.digitalWrite(i,value);
-    }
-
-    bool digitalRead(int i){
-        MainWindow m;
-        m.digitalRead(i);
-    }
-
-    int  analogRead(int i){
-        MainWindow m;
-        m.analogRead(i);
-    }
-
-    void analogWrite(int i, int value){
-        MainWindow m;
-        m.analogWrite(i,value);
-    }
+signals:
+    void delay(int ms);
+    void pinMode(int i,int mode);
+    void digitalWrite(int i, bool value);
+    bool digitalRead(int i);
+    int  analogRead(int i);
+    void analogWrite(int i, int value);
 };
 #endif // TEST_H

@@ -14,7 +14,8 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    test.cpp
+    test.cpp \
+    threadobject.cpp
 
 HEADERS  += mainwindow.h \
     isadefinitions.h \
@@ -24,7 +25,10 @@ HEADERS  += mainwindow.h \
     leftbutton.h \
     rightjoy.h \
     isa7segmentdisplay.h \
-    test.h
+    test.h \
+    isaoled.h \
+    arduinoemulator.h \
+    threadobject.h
 
 FORMS    += mainwindow.ui
 

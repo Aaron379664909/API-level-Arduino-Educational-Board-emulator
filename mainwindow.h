@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPixmap>
+#include <QBitmap>
 #include <QLabel>
 #include <QLCDNumber>
 #include "isadefinitions.h"
@@ -13,6 +14,10 @@
 #include "isabuttons.h"
 #include "isaledcontrol.h"
 #include "isa7segmentdisplay.h"
+#include <QGroupBox>
+#include "threadobject.h"
+#include "test.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -28,31 +33,27 @@ public:
 
 private slots:
 
-    void on_lcdPushButton_clicked();
+    void on_button_Start_clicked();
 
-    void on_pushButton_2_clicked();
-
-    void on_pushButton_3_clicked();
-
-    void on_pushButton_4_clicked();
-
-    void on_pushButton_5_clicked();
-
-    void on_pushButton_6_clicked();
-
-    void on_button_Test_clicked();
+    void on_button_Stop_clicked();
 
 private:
     Ui::MainWindow *ui;
+    ThreadObject* m_obj;
+    QThread* m_objThread;
+    Test* m_test;
 
 public:
-
     QButtonGroup *buttonGroup;//16 number buttons
     QButtonGroup *keyArrowGroup;//4 keyarrow buttons
     QLabel *ledLight[8];//8 LEDs
     QLabel *ledDot[8][8];//8*8 LED display
+    QLabel *oledDot[64][128];//648*128 OLED display
     QTableWidget *lcdTable;//LCD
     QLCDNumber *lcdNum[4];//4 digit display
+    QBitmap bitmapWW;//bitmap 0 used for OLED
+    QBitmap bitmapBB;//bitmap 1 used for OLED
+    QBitmap bitmap[64][128];//record the bitmap, used for OLED.renderALL()
 
     //16 number buttons states
     bool numbuttonsPressed[16];//bool ISAButtons::buttonState
@@ -80,6 +81,19 @@ public:
 
     int ledLightMode[8];//Pin mode, INPUT, OUTPUT, INPUT_PULLUP
 
+    int joy1rx, joy1ry, joy2rx, joy2ry;//2 joysticks
+
+
+signals:
+    void startObjThreadWork();
+public slots:
+    void numButtonPressed();//16 number buttons on press slot
+    void numButtonReleased();//16 number buttons on release slot
+    void numButtonClicked();//16 number buttons on click slot
+    void keyArrowButPressed();//4 key arrow buttons on press slot
+    void keyArrowButReleased();//4 key arrow buttons on release slot
+    void keyArrowButClicked();//4 key arrow buttons on click slot
+
     /**
      * @brief delay. using Timer to implement the delay() function.
      * @param ms. milliseconds to be delayed.
@@ -96,25 +110,8 @@ public:
     bool digitalRead(int i);//i pin-number, return HIHG, LOW
     int  analogRead(int i);//i pin-number, return 0-1023
     void analogWrite(int i, int value);//i pin-number, value from 0 to 255
-
-    int joy1rx, joy1ry, joy2rx, joy2ry;//
-
-    void test1();
-    void test2();
-    void test3();
-    void test4();
-    void test5();
-    void test6();
-    void test7();
-    void test8();
-    void test9();
-public slots:
-    void numButtonPressed();//16 number buttons on press slot
-    void numButtonReleased();//16 number buttons on release slot
-    void numButtonClicked();//16 number buttons on click slot
-    void keyArrowButPressed();//4 key arrow buttons on press slot
-    void keyArrowButReleased();//4 key arrow buttons on release slot
-    void keyArrowButClicked();//4 key arrow buttons on click slot
+public:
+        void quitExe();
 };
 
 #endif // MAINWINDOW_H
