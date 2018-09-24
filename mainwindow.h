@@ -6,6 +6,7 @@
 #include <QBitmap>
 #include <QLabel>
 #include <QLCDNumber>
+#include <QVector>
 #include "isadefinitions.h"
 #include "qbuttongroup.h"
 #include "qelapsedtimer.h"
@@ -15,9 +16,7 @@
 #include "isaledcontrol.h"
 #include "isa7segmentdisplay.h"
 #include <QGroupBox>
-#include "threadobject.h"
 #include "test.h"
-
 
 namespace Ui {
 class MainWindow;
@@ -39,8 +38,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    ThreadObject* m_obj;
-    QThread* m_objThread;
     Test* m_test;
 
 public:
@@ -48,12 +45,21 @@ public:
     QButtonGroup *keyArrowGroup;//4 keyarrow buttons
     QLabel *ledLight[8];//8 LEDs
     QLabel *ledDot[8][8];//8*8 LED display
-    QLabel *oledDot[64][128];//648*128 OLED display
+
     QTableWidget *lcdTable;//LCD
     QLCDNumber *lcdNum[4];//4 digit display
     QBitmap bitmapWW;//bitmap 0 used for OLED
     QBitmap bitmapBB;//bitmap 1 used for OLED
-    QBitmap bitmap[64][128];//record the bitmap, used for OLED.renderALL()
+    QLabel *oledDot[OLED_Y][OLED_X];//128*64 OLED display
+    QBitmap bitmap[OLED_Y][OLED_X];//record the bitmap, used for OLED.renderALL()
+    int oledNow[OLED_Y][OLED_X];//0-oled label is bitmap 0; 1-oled label is bitmap 1
+    int oledLast[OLED_Y][OLED_X];//0-oled label is bitmap 0; 1-oled label is bitmap 1
+
+    QPixmap PixLedOff;
+    QPixmap PixLedOnLow;
+    QPixmap PixLedOnHigh;
+    QPixmap PixWhiteDot;
+    QPixmap PixRedDot;
 
     //16 number buttons states
     bool numbuttonsPressed[16];//bool ISAButtons::buttonState
@@ -83,6 +89,8 @@ public:
 
     int joy1rx, joy1ry, joy2rx, joy2ry;//2 joysticks
 
+    QElapsedTimer ttimer;
+
 
 signals:
     void startObjThreadWork();
@@ -104,7 +112,6 @@ public slots:
         while(t.elapsed()<ms)
             QCoreApplication::processEvents();
     }
-    //void paintEvent(QPaintEvent *);
     void pinMode(int i,int mode);//i pin-number; mode INPUT, OUTPUT, INPUT_PULLUP
     void digitalWrite(int i, bool value);//i pin-number; value HIGH, LOW
     bool digitalRead(int i);//i pin-number, return HIHG, LOW
@@ -112,6 +119,8 @@ public slots:
     void analogWrite(int i, int value);//i pin-number, value from 0 to 255
 public:
         void quitExe();
+        void keyPressEvent(QKeyEvent *key);
+        void keyReleaseEvent(QKeyEvent *key);
 };
 
 #endif // MAINWINDOW_H

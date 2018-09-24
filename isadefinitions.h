@@ -3,12 +3,14 @@
 
 #include <stdint.h>
 
+typedef uint8_t byte;
+
 const bool HIGH = true;
 const bool LOW = false;
 
 const int INPUT = 0;
 const int OUTPUT = 1;
-const int INPUT_PULLUP = 2;
+//const int INPUT_PULLUP = 2;
 
 #define LED8		7
 #define LED7		6
@@ -38,7 +40,7 @@ const static int KEY_ARROWS[] = {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT};
 #define JOY2X		42
 #define JOY2Y		43
 
-typedef uint8_t byte;
+
 static const uint8_t ASCII[][5] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00 } // 20   (space)
        ,{ 0x00, 0x00, 0x5f, 0x00, 0x00 } // 21 !
@@ -137,4 +139,9 @@ static const uint8_t ASCII[][5] = {
        ,{ 0x10, 0x08, 0x08, 0x10, 0x08 } // 7e ~
        ,{ 0x78, 0x46, 0x41, 0x46, 0x78 } // 7f DEL
    };
+
+// OLED X-width Y-length
+#define OLED_X		128
+#define OLED_Y		64
+
 #endif // ISADEFINITIONS_H

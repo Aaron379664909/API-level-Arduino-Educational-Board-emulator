@@ -13,7 +13,7 @@ public:
     void print(QString data);
     void print(int data);
     void print(char data);
-    void print(long data);
+    void print(double data);
     void clear();
     void setCursor(int col,int row);
 

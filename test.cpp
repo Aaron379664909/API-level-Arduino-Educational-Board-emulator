@@ -9,6 +9,7 @@
 ISALiquidCrystal lcd;
 ISAOLED oled;
 ISA7SegmentDisplay sseg;
+ISALedControl lcdcon;
 
 int s1=0;//single-digit digits in seconds
 int s2=0;//10 digits in seconds
@@ -40,16 +41,18 @@ void Test::setup(){
     lcd.begin();
     oled.begin();
     sseg.init();
-    sseg.displayDigit(s1,0);
-    sseg.displayDigit(s2,1);
-    sseg.displayDigit(m1,2,true);
-    sseg.displayDigit(m2,3);
+    lcdcon.init();
 
-    oled.print("I am here! Using print() and renderAll()");
+
+    oled.print(2.315);
+    oled.writeRect(90,36,70,10);
     oled.renderAll();
-
+    lcd.print(2.315);
 }
 void Test::loop(){
+     testcode();
+}
+void Test::testcode(){
     rightk = digitalRead(KEY_RIGHT);
      leftk = digitalRead(KEY_LEFT);
      up = !digitalRead(KEY_UP);
@@ -109,7 +112,7 @@ void Test::loop(){
      int poty = analogRead(JOY1Y);
      int pot2x =analogRead(JOY2X);
      int pot2y=analogRead(JOY2Y);
-     int pot =analogRead(POT);
+
      lcd.print("JOY1:");
      lcd.print(potx);
      lcd.print(",");
@@ -120,34 +123,16 @@ void Test::loop(){
      lcd.print(",");
      lcd.print(pot2y);
 
-//     oled.clear();
-//     oled.print("I am here! Using print() and renderAll()");
-//     oled.gotoXY(4,0);
-//     oled.print("Potentiometer:");
-//     oled.print(pot);
-//     oled.renderAll();
+     int pot =analogRead(POT);
+     oled.clear();
+     oled.print("Potentiometer:");
+     oled.print(pot);
+     oled.setPixel(33,0,true);
+     oled.setPixel(31,1,false);
+     oled.setPixel(31,2,true);
+     oled.writeLine(31,41,30,90);
+     oled.writeRect(90,36,70,10,true);
+     oled.renderAll();
+
+    lcdcon.setColumn(3,0b11111111);
 }
-
-//test1 16 number buttons state
-//test1();
-
-//test2 using key-left and key-right to control LEDs turn left or right.
-//test2();
-
-//test3 display the potentiometer value on LCD
-//test3();
-
-//test4 Using the potentiometer, move the diode to the left or right
-//test4();
-
-//test5 using potentiometer control the LED's brightness.
-//test5();
-
-//test6 test unuse pinMode INPUT and use pinMode INPUT
-//test6();
-
-//test7();
-
-//test8();
-
-//test9();

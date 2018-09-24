@@ -3,7 +3,7 @@
 #include "isaliquidcrystal.h"
 #include "isaoled.h"
 #include "isabuttons.h"
-#include "leftbutton.h"
+#include "LeftJoy.h"
 #include "rightjoy.h"
 #include "qstring.h"
 #include <QPoint>
@@ -13,7 +13,8 @@
 #include <QGridLayout>
 #include <QMessageBox>
 #include "qmath.h"
-#include <QThread>
+
+
 
 MainWindow *m;
 
@@ -57,6 +58,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     loop=true;
+
+    PixLedOff=QPixmap::fromImage(imgLedOff);
+    PixLedOnLow=QPixmap::fromImage(imgLedOnLow);
+    PixLedOnHigh=QPixmap::fromImage(imgLedOnHigh);
+    PixWhiteDot=QPixmap::fromImage(imgWhiteDot);
+    PixRedDot=QPixmap::fromImage(imgRedDot);
 
     //keep the potion of joysticks
     int lx=ui->joyLabel1->pos().rx()+ui->joyLabel1->width()/2-ui->JOY1->width()/2;
@@ -170,9 +177,9 @@ MainWindow::MainWindow(QWidget *parent) :
     joy2r=ui->joyLabel2->width()/2-10;
 
     //65*128 OLED init================================================================
-    QGroupBox* gBox = new QGroupBox(this);
-    gBox->setGeometry(30,10,270,150);
-    //gBox->setStyleSheet("background-color: rgb(0, 0, 0);");
+    //QGroupBox* gBox = new QGroupBox(this);
+    //gBox->setGeometry(30,0,270,150);
+
     QBitmap bitmapW(2,2);
     QBitmap bitmapB(2,2);
 
@@ -186,19 +193,35 @@ MainWindow::MainWindow(QWidget *parent) :
     bitmapWW=bitmapW;
     bitmapBB=bitmapB;
     QGridLayout *pLayout = new QGridLayout();
-    for(int i=0;i<64;++i){
-        for(int j=0;j<128;++j){
+    for(int i=0;i<OLED_Y;++i){
+        for(int j=0;j<OLED_X;++j){
             QLabel *label = new QLabel(this);
             label->setFixedSize(2,2);
             label->setPixmap(bitmapBB);
             oledDot[i][j]=label;
             bitmap[i][j]=bitmapBB;
+            oledNow[i][j]=1;
+            oledLast[i][j]=1;
             pLayout->addWidget(label,i,j);
         }
     }
     pLayout->setSpacing(0);
-    gBox->setLayout(pLayout);
-    gBox->show();
+    //gBox->setLayout(pLayout);
+    //gBox->show();
+    ui->groupBoxOLED->setLayout(pLayout);
+
+
+    //init setup
+    m_test=new Test();
+    connect(m_test,SIGNAL(delay(int)),this,SLOT(delay(int)));
+    connect(m_test,SIGNAL(pinMode(int,int)),this,SLOT(pinMode(int,int)));
+    connect(m_test,SIGNAL(digitalWrite(int,bool)),this,SLOT(digitalWrite(int,bool)));
+    connect(m_test,SIGNAL(digitalRead(int)),this,SLOT(digitalRead(int)));
+    connect(m_test,SIGNAL(analogRead(int)),this,SLOT(analogRead(int)));
+    connect(m_test,SIGNAL(analogWrite(int,int)),this,SLOT(analogWrite(int,int)));
+
+//    m_test->setup();
+
 }
 
 MainWindow::~MainWindow()
@@ -271,6 +294,17 @@ void ISALiquidCrystal::print(int data){
     QString str=QString::number(data);
     print(str);
 }
+void ISALiquidCrystal::print(double data){
+    if(!m->turnOnLCD){
+        QMessageBox::critical(0 ,
+        "critical message" , msg,
+        QMessageBox::Ok , 	0 );
+        m->quitExe();
+        return;
+    }
+    QString str=QString::number(data,'f',2);
+    print(str);
+}
 /**
  * @brief ISALiquidCrystal::clear. clear all the contents in the lcdQtableWidget
  * and set row and col 0
@@ -322,7 +356,7 @@ void ISALedControl::init(){
 void ISALedControl::clearDisplay(){
     for(int i=0;i<8;++i)
         for(int j=0;j<8;++j){
-            m->ledDot[i][j]->setPixmap(QPixmap::fromImage(imgWhiteDot));
+            m->ledDot[i][j]->setPixmap(m->PixWhiteDot);
         }
 }
 
@@ -336,10 +370,10 @@ void ISALedControl::setColumn(int col, byte value){
         if((0<=col)&(col<8)){
             for(int row=0;row<8;++row){
                 if(value&(1<<row)){
-                    m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgRedDot));
+                    m->ledDot[row][col]->setPixmap(m->PixRedDot);
                 }
                 else{
-                    m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgWhiteDot));
+                    m->ledDot[row][col]->setPixmap(m->PixWhiteDot);
                 }
             }
         }
@@ -356,10 +390,10 @@ void ISALedControl::setRow(int row, byte value){
         if((0<=row)&(row<8)){
             for(int col=0;col<8;++col){
                 if(value&(1<<col)){
-                    m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgRedDot));
+                    m->ledDot[row][col]->setPixmap(m->PixRedDot);
                 }
                 else{
-                    m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgWhiteDot));
+                    m->ledDot[row][col]->setPixmap(m->PixWhiteDot);
                 }
             }
         }
@@ -376,10 +410,10 @@ void ISALedControl::setLed(int row, int col, bool value){
     if(m->turnOnLedDisplay){
         if((0<=row)&(row<8)&(0<=col)&(col<8)){
             if(value){
-                m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgRedDot));
+                m->ledDot[row][col]->setPixmap(m->PixRedDot);
             }
             else{
-                m->ledDot[row][col]->setPixmap(QPixmap::fromImage(imgWhiteDot));
+                m->ledDot[row][col]->setPixmap(m->PixWhiteDot);
             }
         }
     }
@@ -438,12 +472,12 @@ bool ISAButtons::buttonState(int i){
 //End functions of ISAButtons.h=====================================================
 
 
-//Begin functions of LeftButton.h=====================================================
-LeftButton::LeftButton(QWidget *parent):QLabel(parent)
+//Begin functions of LeftJoy.h=====================================================
+LeftJoy::LeftJoy(QWidget *parent):QLabel(parent)
 {
 }
 
-void LeftButton::mousePressEvent(QMouseEvent*e)
+void LeftJoy::mousePressEvent(QMouseEvent*e)
 {
     int x=this->pos().rx()+this->width()/2;
     int y=this->pos().ry()+this->height()/2;
@@ -453,7 +487,7 @@ void LeftButton::mousePressEvent(QMouseEvent*e)
     r=joy1r;
     windowPointL = e->globalPos() - this->pos();
 }
-void LeftButton::mouseReleaseEvent(QMouseEvent *e){
+void LeftJoy::mouseReleaseEvent(QMouseEvent *e){
 
     QPoint pointr=m->findChild<QLabel *>("joyLabel1")->pos();
     int x=pointr.rx()+m->findChild<QLabel *>("joyLabel1")->width()/2-this->width()/2;
@@ -465,7 +499,7 @@ void LeftButton::mouseReleaseEvent(QMouseEvent *e){
 
 }
 
-void LeftButton::mouseMoveEvent(QMouseEvent*e)
+void LeftJoy::mouseMoveEvent(QMouseEvent*e)
 {
     int redR=this->width()/2;
      QPoint bpoint=e->globalPos()-windowPointL;
@@ -529,7 +563,7 @@ void LeftButton::mouseMoveEvent(QMouseEvent*e)
          }
 }
 
-//End functions of LeftButton.h=====================================================
+//End functions of LeftJoy.h=====================================================
 
 
 //Begin functions of RihgtJoy.h=====================================================
@@ -686,21 +720,22 @@ void MainWindow::digitalWrite(int i, bool value){
     if((i>=0) & (i<8)){//8 LEDs
         if(value==HIGH){// turn on leds
             if(ledLightMode[i]==OUTPUT){//OUTPUT Mode turn on
-                ledLight[i]->setPixmap(QPixmap::fromImage(imgLedOnHigh));
+                //ledLight[i]->setPixmap(QPixmap::fromImage(imgLedOnHigh));
+                ledLight[i]->setPixmap(PixLedOnHigh);
             }
             else{
-                ledLight[i]->setPixmap(QPixmap::fromImage(imgLedOnLow));
+                ledLight[i]->setPixmap(PixLedOnLow);
             }
         }
         else if(value==LOW){// turn off leds
-            ledLight[i]->setPixmap(QPixmap::fromImage(imgLedOff));
+            ledLight[i]->setPixmap(PixLedOff);
         }
     }
     if(i==13){
         if(value==HIGH){
-            ui->pin13->setPixmap(QPixmap::fromImage(imgLedOnHigh));
+            ui->pin13->setPixmap(PixLedOnHigh);
         }else{
-            ui->pin13->setPixmap(QPixmap::fromImage(imgLedOff));
+            ui->pin13->setPixmap(PixLedOff);
         }
 
     }
@@ -775,29 +810,6 @@ void MainWindow::analogWrite(int i, int value){
         }
     }
 }
-
-//Buttons========================================================================================
-//void MainWindow::on_pushButton_LED1_clicked()
-//{
-//    while(true){
-//      for(int i=0;i<8;++i){
-//        pinMode(LEDS[i], OUTPUT);
-//        digitalWrite(LEDS[i], HIGH);
-//        if(i!=0){
-//         digitalWrite(LEDS[i-1], LOW);
-//         delay(1000);
-//         }
-//         if(i==7){
-//          for(int j=6;j>=0;j--){
-//            pinMode(LEDS[j], OUTPUT);
-//            digitalWrite(LEDS[j], HIGH);
-//            digitalWrite(LEDS[j+1], LOW);
-//            delay(1000);
-//          }
-//         }
-//      }
-//    }
-//}
 
 //16 number buttons events====================================
 /**
@@ -919,11 +931,44 @@ void MainWindow::keyArrowButReleased(){
 void MainWindow::keyArrowButClicked(){
 
 }
+/**
+ * @brief MainWindow::keyPressEvent
+ * @param key
+ */
+void MainWindow::keyPressEvent(QKeyEvent *key){
+    switch(key->key()){
+    case Qt::Key_Up:emit ui->pin20->pressed();break;
+    case Qt::Key_Down:emit ui->pin21->pressed();break;
+    case Qt::Key_Left:emit ui->pin22->pressed();break;
+    case Qt::Key_Right:emit ui->pin23->pressed();break;
+    case Qt::Key_W:emit ui->pin20->pressed();break;
+    case Qt::Key_S:emit ui->pin21->pressed();break;
+    case Qt::Key_A:emit ui->pin22->pressed();break;
+    case Qt::Key_D:emit ui->pin23->pressed();break;
+
+    default: break;
+    }
+}
+/**
+ * @brief MainWindow::keyReleaseEvent
+ * @param key
+ */
+void MainWindow::keyReleaseEvent(QKeyEvent *key){
+    switch(key->key()){
+    case Qt::Key_Up:emit ui->pin20->released();break;
+    case Qt::Key_Down:emit ui->pin21->released();break;
+    case Qt::Key_Left:emit ui->pin22->released();break;
+    case Qt::Key_Right:emit ui->pin23->released();break;
+    case Qt::Key_W:emit ui->pin20->released();break;
+    case Qt::Key_S:emit ui->pin21->released();break;
+    case Qt::Key_A:emit ui->pin22->released();break;
+    case Qt::Key_D:emit ui->pin23->released();break;
+
+    default: break;
+    }
+}
+
 //end 4 key-arrow buttons events====================================
-
-
-
-
 
 
 // Below are test cases==========================================
@@ -1112,6 +1157,9 @@ void ISAOLED::begin(){
 /**
  * @brief ISAOLED::write
  * @param data
+ * Be noticed the Arduino educational board OLED will over-write from (0,0),
+ * when ptrint full screen at(63,127).
+ * This code dos not allow over screen.
  */
 void ISAOLED::write(byte data){
 
@@ -1122,13 +1170,14 @@ void ISAOLED::write(byte data){
                 if((oledCol+j)>127){
                     oledRow +=8;
                     oledCol =-j;
-                    //m->oledDot[oledRow+i+1][0]->setPixmap(m->bitmapWW);
                     m->bitmap[oledRow+i+1][0]=m->bitmapWW;
-                }else{
-                    //m->oledDot[oledRow+i+1][oledCol+j]->setPixmap(m->bitmapWW);
+                    m->oledNow[oledRow+i+1][0]=0;
+                }else if((oledRow+i+1)<OLED_Y){
                     m->bitmap[oledRow+i+1][oledCol+j]=m->bitmapWW;
+                    m->oledNow[oledRow+i+1][oledCol+j]=0;
+                }else{
+                    return;
                 }
-
             }
         }
 
@@ -1149,16 +1198,19 @@ void ISAOLED::print(int x){
     QString str=QString::number(x,10);
     print(str);
 }
-
+void ISAOLED::print(double x){
+    QString str=QString::number(x,'f',2);
+    print(str);
+}
 /**
  * @brief ISAOLED::clear
  * @param render
  */
 void ISAOLED::clear(bool render){
-    for(int i=0;i<64;++i){
-        for(int j=0;j<128;++j){
-            //m->oledDot[i][j]->setPixmap(m->bitmapBB);
+    for(int i=0;i<OLED_Y;++i){
+        for(int j=0;j<OLED_X;++j){
             m->bitmap[i][j]=m->bitmapBB;
+            m->oledNow[i][j]=1;
         }
     }
     gotoXY(0,0);
@@ -1178,11 +1230,23 @@ void ISAOLED::gotoXY(int cx, int cy){
  * @brief ISAOLED::renderAll
  */
 void ISAOLED::renderAll(){
-    for(int x=0;x<64;++x){
-        for(int y=0;y<128;++y){
-            m->oledDot[x][y]->setPixmap(m->bitmap[x][y]);
-        }
+    while(m->ttimer.elapsed()<100){
+        QCoreApplication::processEvents();
+        return;
     }
+    if(m->ttimer.elapsed()>100){
+        for(int x=0;x<OLED_Y;++x){
+            for(int y=0;y<OLED_X;++y){
+                if(m->oledNow[x][y]!=m->oledLast[x][y]){
+                    m->oledDot[x][y]->setPixmap(m->bitmap[x][y]);
+                    m->oledLast[x][y]=m->oledNow[x][y];
+                }
+
+            }
+        }
+       m->ttimer.restart();
+   }
+
 }
 /**
  * @brief ISAOLED::setPixel
@@ -1193,10 +1257,12 @@ void ISAOLED::renderAll(){
 void ISAOLED::setPixel(int x, int y, bool v){
     if(v){
         //m->oledDot[x][y]->setPixmap(m->bitmapWW);
-        m->bitmap[x][y]=m->bitmapWW;
+        m->bitmap[y][x]=m->bitmapWW;
+        m->oledNow[y][x]=0;
     }else{
         //m->oledDot[x][y]->setPixmap(m->bitmapBB);
-        m->bitmap[x][y]=m->bitmapBB;
+        m->bitmap[y][x]=m->bitmapBB;
+        m->oledNow[y][x]=1;
     }
 }
 /**
@@ -1231,19 +1297,23 @@ void ISAOLED::writeLine(int x1, int y1, int x2, int y2){
  * @param fill
  */
 void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
-    if (x >= 63 || y >= 127 || w == 0 || h == 0) return;
+    if (x >= OLED_X || y >= OLED_Y || w == 0 || h == 0) return;
     for(int i =0;i<w;++i){
         for(int j=0;j<h;++j){
-            //m->oledDot[x+i][y+j]->setPixmap(m->bitmapWW);
-            m->bitmap[x+i][y+j]=m->bitmapWW;
+            if((x+i)<OLED_X&&(y+j)<OLED_Y){
+                m->bitmap[y+j][x+i]=m->bitmapWW;
+                m->oledNow[y+j][x+i]=0;
+            }
         }
     }
     if(!fill){
         if(w>2 && h>2){
             for(int i=0;i<w-2;++i){
                 for(int j=0;j<h-2;++j){
-                    //m->oledDot[x+i+1][y+j+1]->setPixmap(m->bitmapBB);
-                    m->bitmap[x+i+1][y+j+1]=m->bitmapBB;
+                    if((x+i+1)<OLED_X&&(y+j+1)<OLED_Y){
+                        m->bitmap[y+j+1][x+i+1]=m->bitmapBB;
+                        m->oledNow[y+j+1][x+i+1]=1;
+                    }
                 }
             }
         }
@@ -1260,38 +1330,17 @@ void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
 //end of test code=======================================================================
 void MainWindow::on_button_Start_clicked()
 {
-    m_test=new Test();
-    connect(m_test,SIGNAL(delay(int)),this,SLOT(delay(int)));
-    connect(m_test,SIGNAL(pinMode(int,int)),this,SLOT(pinMode(int,int)));
-    connect(m_test,SIGNAL(digitalWrite(int,bool)),this,SLOT(digitalWrite(int,bool)));
-    connect(m_test,SIGNAL(digitalRead(int)),this,SLOT(digitalRead(int)));
-    connect(m_test,SIGNAL(analogRead(int)),this,SLOT(analogRead(int)));
-    connect(m_test,SIGNAL(analogWrite(int,int)),this,SLOT(analogWrite(int,int)));
+    ui->button_Start->setText("Running");
 
     m_test->setup();
-
     while(loop){
         m_test->loop();
-        delay(30);
+        QCoreApplication::processEvents();
     }
-////
-//    if(m_objThread)
-//     {
-//         return;
-//     }
-//     m_objThread= new QThread();
-//     m_obj = new ThreadObject();
-//     m_obj->moveToThread(m_objThread);
-//     connect(m_objThread,&QThread::finished,m_objThread,&QObject::deleteLater);
-//     connect(m_objThread,&QThread::finished,m_obj,&QObject::deleteLater);
-//     connect(this,&Widget::startObjThreadWork1,m_obj,&ThreadObject::runSomeBigWork1);
-//     connect(this,&Widget::startObjThreadWork2,m_obj,&ThreadObject::runSomeBigWork2);
-//     connect(m_obj,&ThreadObject::progress,this,&Widget::progress);
-//     connect(m_obj,&ThreadObject::message,this,&Widget::receiveMessage);
-//     m_objThread->start();
 }
 
 void MainWindow::on_button_Stop_clicked()
 {
     loop=false;
+    ui->button_Start->setText("Start");
 }

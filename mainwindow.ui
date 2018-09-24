@@ -1949,7 +1949,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="LeftButton" name="JOY1">
+   <widget class="LeftJoy" name="JOY1">
     <property name="geometry">
      <rect>
       <x>80</x>
@@ -2134,6 +2134,19 @@
      <string>Stop</string>
     </property>
    </widget>
+   <widget class="QGroupBox" name="groupBoxOLED">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>0</y>
+      <width>270</width>
+      <height>150</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+   </widget>
    <zorder>joyLabel2</zorder>
    <zorder>joyLabel1</zorder>
    <zorder>lcdTableWidget</zorder>
@@ -2170,6 +2183,7 @@
    <zorder>pin13</zorder>
    <zorder>label</zorder>
    <zorder>button_Stop</zorder>
+   <zorder>groupBoxOLED</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2181,27 +2195,19 @@
     </rect>
    </property>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>LeftButton</class>
-   <extends>QLabel</extends>
-   <header>leftbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>RightJoy</class>
    <extends>QLabel</extends>
    <header>rightjoy.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LeftJoy</class>
+   <extends>QLabel</extends>
+   <header>leftjoy.h</header>
   </customwidget>
  </customwidgets>
  <resources>
