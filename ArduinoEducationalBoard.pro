@@ -14,7 +14,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    test.cpp
+    usercode.cpp
 
 HEADERS  += mainwindow.h \
     isadefinitions.h \
@@ -23,9 +23,9 @@ HEADERS  += mainwindow.h \
     isaledcontrol.h \
     rightjoy.h \
     isa7segmentdisplay.h \
-    test.h \
     isaoled.h \
-    leftjoy.h
+    leftjoy.h \
+    usercode.h
 
 FORMS    += mainwindow.ui
 

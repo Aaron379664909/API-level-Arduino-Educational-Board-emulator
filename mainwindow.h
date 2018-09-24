@@ -16,7 +16,7 @@
 #include "isaledcontrol.h"
 #include "isa7segmentdisplay.h"
 #include <QGroupBox>
-#include "test.h"
+#include "usercode.h"
 
 namespace Ui {
 class MainWindow;
@@ -38,7 +38,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Test* m_test;
+    UserCode* my_usercode;
 
 public:
     QButtonGroup *buttonGroup;//16 number buttons

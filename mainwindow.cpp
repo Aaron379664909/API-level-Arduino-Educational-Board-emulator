@@ -212,15 +212,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     //init setup
-    m_test=new Test();
-    connect(m_test,SIGNAL(delay(int)),this,SLOT(delay(int)));
-    connect(m_test,SIGNAL(pinMode(int,int)),this,SLOT(pinMode(int,int)));
-    connect(m_test,SIGNAL(digitalWrite(int,bool)),this,SLOT(digitalWrite(int,bool)));
-    connect(m_test,SIGNAL(digitalRead(int)),this,SLOT(digitalRead(int)));
-    connect(m_test,SIGNAL(analogRead(int)),this,SLOT(analogRead(int)));
-    connect(m_test,SIGNAL(analogWrite(int,int)),this,SLOT(analogWrite(int,int)));
+    my_usercode=new UserCode();
+    connect(my_usercode,SIGNAL(delay(int)),this,SLOT(delay(int)));
+    connect(my_usercode,SIGNAL(pinMode(int,int)),this,SLOT(pinMode(int,int)));
+    connect(my_usercode,SIGNAL(digitalWrite(int,bool)),this,SLOT(digitalWrite(int,bool)));
+    connect(my_usercode,SIGNAL(digitalRead(int)),this,SLOT(digitalRead(int)));
+    connect(my_usercode,SIGNAL(analogRead(int)),this,SLOT(analogRead(int)));
+    connect(my_usercode,SIGNAL(analogWrite(int,int)),this,SLOT(analogWrite(int,int)));
 
-//    m_test->setup();
+//    my_usercode->setup();
 
 }
 
@@ -506,8 +506,8 @@ void LeftJoy::mouseMoveEvent(QMouseEvent*e)
          if(sqrt(pow(abs(bpoint.rx()-centerPointL.rx()+redR),2) + pow(abs(bpoint.ry()-centerPointL.ry()+redR),2)) <=r)
          {
              move(bpoint);
-             m->joy1rx=1023*(bpoint.rx()-centerPointL.rx()+r+redR)/(2*r);
-             m->joy1ry=1023*(bpoint.ry()-centerPointL.ry()+r+redR)/(2*r);
+             m->joy1rx=1023*(centerPointL.rx()+r-bpoint.rx()-redR)/(2*r);
+             m->joy1ry=1023*(centerPointL.ry()+r-bpoint.ry()-redR)/(2*r);
 
          }else
          {
@@ -519,8 +519,8 @@ void LeftJoy::mouseMoveEvent(QMouseEvent*e)
                  bpoint.setY(centerPointL.ry() + r*qSin((angle-90.0)*3.1415/180)-redR);
                  move(bpoint);
 
-                 m->joy1rx=1023*(bpoint.rx()-centerPointL.rx()+r+redR)/(2*r);
-                 m->joy1ry=1023*(bpoint.ry()-centerPointL.ry()+r+redR)/(2*r);
+                 m->joy1rx=1023*(centerPointL.rx()+r-bpoint.rx()-redR)/(2*r);
+                 m->joy1ry=1023*(centerPointL.ry()+r-bpoint.ry()-redR)/(2*r);
 
              }
 
@@ -532,8 +532,8 @@ void LeftJoy::mouseMoveEvent(QMouseEvent*e)
                  bpoint.setY(centerPointL.ry() + r*qSin((angle-90.0)*3.1415/180)-redR);
                  move(bpoint);
 
-                 m->joy1rx=1023*(bpoint.rx()-centerPointL.rx()+r+redR)/(2*r);
-                 m->joy1ry=1023*(bpoint.ry()-centerPointL.ry()+r+redR)/(2*r);
+                 m->joy1rx=1023*(centerPointL.rx()+r-bpoint.rx()-redR)/(2*r);
+                 m->joy1ry=1023*(centerPointL.ry()+r-bpoint.ry()-redR)/(2*r);
 
              }
              else if((bpoint.rx()+redR)<centerPointL.rx() && (bpoint.ry()+redR)>centerPointL.ry())
@@ -544,8 +544,8 @@ void LeftJoy::mouseMoveEvent(QMouseEvent*e)
                  bpoint.setY(centerPointL.ry() - r*qSin((angle-90.0)*3.1415/180)-redR);
                  move(bpoint);
 
-                 m->joy1rx=1023*(bpoint.rx()-centerPointL.rx()+r+redR)/(2*r);
-                 m->joy1ry=1023*(bpoint.ry()-centerPointL.ry()+r+redR)/(2*r);
+                 m->joy1rx=1023*(centerPointL.rx()+r-bpoint.rx()-redR)/(2*r);
+                 m->joy1ry=1023*(centerPointL.ry()+r-bpoint.ry()-redR)/(2*r);
 
              }
              else if((bpoint.rx()+redR)<centerPointL.rx() && (bpoint.ry()+redR)<centerPointL.ry())
@@ -556,8 +556,8 @@ void LeftJoy::mouseMoveEvent(QMouseEvent*e)
                  bpoint.setY(centerPointL.ry() - r*qSin((angle-90.0)*3.1415/180)-redR);
                  move(bpoint);
 
-                 m->joy1rx=1023*(bpoint.rx()-centerPointL.rx()+r+redR)/(2*r);
-                 m->joy1ry=1023*(bpoint.ry()-centerPointL.ry()+r+redR)/(2*r);
+                 m->joy1rx=1023*(centerPointL.rx()+r-bpoint.rx()-redR)/(2*r);
+                 m->joy1ry=1023*(centerPointL.ry()+r-bpoint.ry()-redR)/(2*r);
 
              }
          }
@@ -601,7 +601,7 @@ void RightJoy::mouseMoveEvent(QMouseEvent*e)
      {
          move(bpoint);
          m->joy2rx=1023*(bpoint.rx()-centerPointR.rx()+r+redR)/(2*r);
-         m->joy2ry=1023*(bpoint.ry()-centerPointR.ry()+r+redR)/(2*r);
+         m->joy2ry=1023*(centerPointR.ry()+r-bpoint.ry()-redR)/(2*r);
 
      }else
      {
@@ -614,7 +614,7 @@ void RightJoy::mouseMoveEvent(QMouseEvent*e)
              move(bpoint);
 
              m->joy2rx=1023*(bpoint.rx()-centerPointR.rx()+r+redR)/(2*r);
-             m->joy2ry=1023*(bpoint.ry()-centerPointR.ry()+r+redR)/(2*r);
+             m->joy2ry=1023*(centerPointR.ry()+r-bpoint.ry()-redR)/(2*r);
 
          }
 
@@ -627,7 +627,7 @@ void RightJoy::mouseMoveEvent(QMouseEvent*e)
              move(bpoint);
 
              m->joy2rx=1023*(bpoint.rx()-centerPointR.rx()+r+redR)/(2*r);
-             m->joy2ry=1023*(bpoint.ry()-centerPointR.ry()+r+redR)/(2*r);
+             m->joy2ry=1023*(centerPointR.ry()+r-bpoint.ry()-redR)/(2*r);
 
          }
          else if((bpoint.rx()+redR)<centerPointR.rx() && (bpoint.ry()+redR)>centerPointR.ry())
@@ -639,7 +639,7 @@ void RightJoy::mouseMoveEvent(QMouseEvent*e)
              move(bpoint);
 
              m->joy2rx=1023*(bpoint.rx()-centerPointR.rx()+r+redR)/(2*r);
-             m->joy2ry=1023*(bpoint.ry()-centerPointR.ry()+r+redR)/(2*r);
+             m->joy2ry=1023*(centerPointR.ry()+r-bpoint.ry()-redR)/(2*r);
 
          }
          else if((bpoint.rx()+redR)<centerPointR.rx() && (bpoint.ry()+redR)<centerPointR.ry())
@@ -651,7 +651,7 @@ void RightJoy::mouseMoveEvent(QMouseEvent*e)
              move(bpoint);
 
              m->joy2rx=1023*(bpoint.rx()-centerPointR.rx()+r+redR)/(2*r);
-             m->joy2ry=1023*(bpoint.ry()-centerPointR.ry()+r+redR)/(2*r);
+             m->joy2ry=1023*(centerPointR.ry()+r-bpoint.ry()-redR)/(2*r);
 
          }
      }
@@ -1321,24 +1321,22 @@ void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
 }
 //End function of ISAOLED.h=======================================
 
-//Start code here =============================================================================
+//Start-button code here =========================================
 /**
  * @brief MainWindow::on_button_Start_clicked
  * emulate Arduino loop()
  */
-
-//end of test code=======================================================================
 void MainWindow::on_button_Start_clicked()
 {
     ui->button_Start->setText("Running");
 
-    m_test->setup();
+    my_usercode->setup();
     while(loop){
-        m_test->loop();
+        my_usercode->loop();
         QCoreApplication::processEvents();
     }
 }
-
+//Stop-button code here =========================================
 void MainWindow::on_button_Stop_clicked()
 {
     loop=false;
