@@ -17,7 +17,6 @@ signals:
     int  analogRead(int i);
     void analogWrite(int i, int value);
 public:
-    void testcode();
-    void testcode1();
+    void printOLED(int m);
 };
 #endif // USERCODE_H

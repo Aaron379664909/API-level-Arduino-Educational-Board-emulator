@@ -1167,7 +1167,7 @@ void ISAOLED::write(byte data){
     for(int j=0;j<5;++j){
         for(int i=0;i<8;++i){
             if(ASCII[data - 0x20][j]&(1<<i)){
-                if((oledCol+j)>127){
+                if((oledCol+j)>=OLED_X){
                     oledRow +=8;
                     oledCol =-j;
                     m->bitmap[oledRow+i+1][0]=m->bitmapWW;
@@ -1221,10 +1221,10 @@ void ISAOLED::clear(bool render){
  * @param cy
  */
 void ISAOLED::gotoXY(int cx, int cy){
-    if(cx<0 || cx>7 || cy<0 ||cy>127)
+    if(cx<0 || cx>=OLED_X || cy<0 ||cy>=OLED_Y)
         return;
-    oledRow=cx*8;
-    oledCol=cy;
+    oledRow=cy*8;
+    oledCol=cx;
 }
 /**
  * @brief ISAOLED::renderAll
@@ -1245,6 +1245,7 @@ void ISAOLED::renderAll(){
             }
         }
        m->ttimer.restart();
+       gotoXY(0,0);
    }
 
 }
@@ -1340,5 +1341,6 @@ void MainWindow::on_button_Start_clicked()
 void MainWindow::on_button_Stop_clicked()
 {
     loop=false;
-    ui->button_Start->setText("Start");
+    delay(100);
+    exit(0);
 }

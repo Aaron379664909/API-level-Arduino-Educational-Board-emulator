@@ -2131,7 +2131,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Stop</string>
+     <string>Stop-Close</string>
     </property>
    </widget>
    <widget class="QGroupBox" name="groupBoxOLED">
