@@ -48,12 +48,13 @@ public:
 
     QTableWidget *lcdTable;//LCD
     QLCDNumber *lcdNum[4];//4 digit display
-    QBitmap bitmapWW;//bitmap 0 used for OLED
-    QBitmap bitmapBB;//bitmap 1 used for OLED
-    QLabel *oledDot[OLED_Y][OLED_X];//128*64 OLED display
-    QBitmap bitmap[OLED_Y][OLED_X];//record the bitmap, used for OLED.renderALL()
+    //QBitmap bitmapWW;//bitmap 0 used for OLED
+    //QBitmap bitmapBB;//bitmap 1 used for OLED
+    QBitmap bitmapOLED;//bitmap used for OLED
+    //QLabel *oledDot[OLED_Y][OLED_X];//128*64 OLED display
+    //QBitmap bitmap[OLED_Y][OLED_X];//record the bitmap, used for OLED.renderALL()
     int oledNow[OLED_Y][OLED_X];//0-oled label is bitmap 0; 1-oled label is bitmap 1
-    int oledLast[OLED_Y][OLED_X];//0-oled label is bitmap 0; 1-oled label is bitmap 1
+    //int oledLast[OLED_Y][OLED_X];//0-oled label is bitmap 0; 1-oled label is bitmap 1
 
     QPixmap PixLedOff;
     QPixmap PixLedOnLow;
@@ -89,7 +90,7 @@ public:
 
     int joy1rx, joy1ry, joy2rx, joy2ry;//2 joysticks
 
-    QElapsedTimer ttimer;
+    //QElapsedTimer ttimer;
 
 
 public slots:

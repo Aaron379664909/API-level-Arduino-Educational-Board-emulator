@@ -178,37 +178,62 @@ MainWindow::MainWindow(QWidget *parent) :
     joy1r=ui->joyLabel1->width()/2-10;
     joy2r=ui->joyLabel2->width()/2-10;
 
-    //65*128 OLED init================================================================
-    QBitmap bitmapW(2,2);
-    QBitmap bitmapB(2,2);
+    //65*128 OLED init  one Qlabel with one Bitmap======================
+    QBitmap bitmap(OLED_X*2, OLED_Y*2);
+    QPainter painterw(&bitmap);
+    painterw.fillRect(0,0,OLED_X*2,OLED_Y*2,Qt::black);
+    bitmapOLED=bitmap;
+    ui->label_OLED->setPixmap(bitmapOLED);
 
-    QPainter painter(&bitmapB);
-    QPainter painterw(&bitmapW);
-
-    painter.fillRect(0,0,2,2,Qt::black);
-    painterw.fillRect(0,0,2,2,Qt::white);
-
-    bitmapWW=bitmapW;
-    bitmapBB=bitmapB;
-    //Usinng labels emulate 128*64 OLED========================
-    QGridLayout *pLayout = new QGridLayout();
     for(int i=0;i<OLED_Y;++i){
         for(int j=0;j<OLED_X;++j){
-            QLabel *label = new QLabel(this);
-            label->setFixedSize(2,2);
-            label->setPixmap(bitmapBB);
-            oledDot[i][j]=label;
-            bitmap[i][j]=bitmapBB;
             oledNow[i][j]=1;
-            oledLast[i][j]=1;
-            pLayout->addWidget(label,i,j);
         }
     }
-    pLayout->setSpacing(0);
-    ui->groupBoxOLED->setLayout(pLayout);
-    //End Usinng labels emulate 128*64 OLED========================
+    //End Usinng one Qlabel with one Bitmap emulate 128*64 OLED========================
+
+    //65*128 OLED init Usinng 128*64 labels emulate 128*64 OLED===========
+    //    QBitmap bitmapW(2,2);
+    //    QBitmap bitmapB(2,2);
+
+    //    QPainter painter(&bitmapB);
+    //    QPainter painterw(&bitmapW);
+
+    //    painter.fillRect(0,0,2,2,Qt::black);
+    //    painterw.fillRect(0,0,2,2,Qt::white);
+
+    //    bitmapWW=bitmapW;
+    //    bitmapBB=bitmapB;
+    //
+    //    QGridLayout *pLayout = new QGridLayout();
+    //    for(int i=0;i<OLED_Y;++i){
+    //        for(int j=0;j<OLED_X;++j){
+    //            QLabel *label = new QLabel(this);
+    //            label->setFixedSize(2,2);
+    //            label->setPixmap(bitmapBB);
+    //            oledDot[i][j]=label;
+    //            bitmap[i][j]=bitmapBB;
+    //            oledNow[i][j]=1;
+    //            oledLast[i][j]=1;
+    //            pLayout->addWidget(label,i,j);
+    //        }
+    //    }
+    //    pLayout->setSpacing(0);
+    //    ui->groupBoxOLED->setLayout(pLayout);
+        //End Usinng labels emulate 128*64 OLED========================
 
     //Usinng painter emulate 128*64 OLED, Using paintEvent=============
+    //    QBitmap bitmapW(2,2);
+    //    QBitmap bitmapB(2,2);
+
+    //    QPainter painter(&bitmapB);
+    //    QPainter painterw(&bitmapW);
+
+    //    painter.fillRect(0,0,2,2,Qt::black);
+    //    painterw.fillRect(0,0,2,2,Qt::white);
+
+    //    bitmapWW=bitmapW;
+    //    bitmapBB=bitmapB;
 //        for(int i=0;i<OLED_Y;++i){
 //            for(int j=0;j<OLED_X;++j){
 //                bitmap[i][j]=bitmapBB;
@@ -1029,10 +1054,8 @@ void ISAOLED::write(byte data){
                 if((oledCol+j)>=OLED_X){
                     oledRow +=8;
                     oledCol =-j;
-                    m->bitmap[oledRow+i+1][0]=m->bitmapWW;
                     m->oledNow[oledRow+i+1][0]=0;
                 }else if((oledRow+i+1)<OLED_Y){
-                    m->bitmap[oledRow+i+1][oledCol+j]=m->bitmapWW;
                     m->oledNow[oledRow+i+1][oledCol+j]=0;
                 }else{
                     return;
@@ -1043,6 +1066,28 @@ void ISAOLED::write(byte data){
     }
     oledCol +=6;
 }
+//void ISAOLED::write(byte data){
+//    //ASCII[data - 0x20]
+//    for(int j=0;j<5;++j){
+//        for(int i=0;i<8;++i){
+//            if(ASCII[data - 0x20][j]&(1<<i)){
+//                if((oledCol+j)>=OLED_X){
+//                    oledRow +=8;
+//                    oledCol =-j;
+//                    m->bitmap[oledRow+i+1][0]=m->bitmapWW;
+//                    m->oledNow[oledRow+i+1][0]=0;
+//                }else if((oledRow+i+1)<OLED_Y){
+//                    m->bitmap[oledRow+i+1][oledCol+j]=m->bitmapWW;
+//                    m->oledNow[oledRow+i+1][oledCol+j]=0;
+//                }else{
+//                    return;
+//                }
+//            }
+//        }
+
+//    }
+//    oledCol +=6;
+//}
 /**
  * @brief ISAOLED::print
  * @param text
@@ -1068,12 +1113,20 @@ void ISAOLED::print(double x){
 void ISAOLED::clear(bool render){
     for(int i=0;i<OLED_Y;++i){
         for(int j=0;j<OLED_X;++j){
-            m->bitmap[i][j]=m->bitmapBB;
             m->oledNow[i][j]=1;
         }
     }
     gotoXY(0,0);
 }
+//void ISAOLED::clear(bool render){
+//    for(int i=0;i<OLED_Y;++i){
+//        for(int j=0;j<OLED_X;++j){
+//            m->bitmap[i][j]=m->bitmapBB;
+//            m->oledNow[i][j]=1;
+//        }
+//    }
+//    gotoXY(0,0);
+//}
 /**
  * @brief ISAOLED::gotoXY
  * @param cx
@@ -1089,24 +1142,37 @@ void ISAOLED::gotoXY(int cx, int cy){
  * @brief ISAOLED::renderAll-Using seting label bitmap
  */
 void ISAOLED::renderAll(){
-    while(m->ttimer.elapsed()<=100){
-        QCoreApplication::processEvents();
-        return;
-    }
-    if(m->ttimer.elapsed()>100){
-        for(int x=0;x<OLED_Y;++x){
-            for(int y=0;y<OLED_X;++y){
-                if(m->oledNow[x][y]!=m->oledLast[x][y]){
-                    m->oledDot[x][y]->setPixmap(m->bitmap[x][y]);
-                    m->oledLast[x][y]=m->oledNow[x][y];
-                }
-
+    QPainter painter(&(m->bitmapOLED));
+    for(int x=0;x<OLED_Y;++x){
+        for(int y=0;y<OLED_X;++y){
+            if(m->oledNow[x][y]==1){
+                painter.fillRect(y*2,x*2,2,2,Qt::black);
+            }else{
+                painter.fillRect(y*2,x*2,2,2,Qt::white);
             }
         }
-       m->ttimer.restart();
-   }
-
+    }
+    m->findChild<QLabel *>("label_OLED")->setPixmap(m->bitmapOLED);
 }
+//void ISAOLED::renderAll(){
+//    while(m->ttimer.elapsed()<=100){
+//        QCoreApplication::processEvents();
+//        return;
+//    }
+//    if(m->ttimer.elapsed()>100){
+//        for(int x=0;x<OLED_Y;++x){
+//            for(int y=0;y<OLED_X;++y){
+//                if(m->oledNow[x][y]!=m->oledLast[x][y]){
+//                    m->oledDot[x][y]->setPixmap(m->bitmap[x][y]);
+//                    m->oledLast[x][y]=m->oledNow[x][y];
+//                }
+
+//            }
+//        }
+//       m->ttimer.restart();
+//   }
+
+//}
 /**
  * @brief ISAOLED::renderAll-Using paint update.
  */
@@ -1129,13 +1195,20 @@ void ISAOLED::renderAll(){
  */
 void ISAOLED::setPixel(int x, int y, bool v){
     if(v){
-        m->bitmap[y][x]=m->bitmapWW;
         m->oledNow[y][x]=0;
     }else{
-        m->bitmap[y][x]=m->bitmapBB;
         m->oledNow[y][x]=1;
     }
 }
+//void ISAOLED::setPixel(int x, int y, bool v){
+//    if(v){
+//        m->bitmap[y][x]=m->bitmapWW;
+//        m->oledNow[y][x]=0;
+//    }else{
+//        m->bitmap[y][x]=m->bitmapBB;
+//        m->oledNow[y][x]=1;
+//    }
+//}
 /**
  * @brief ISAOLED::writeLine
  * @param x1
@@ -1172,7 +1245,6 @@ void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
     for(int i =0;i<w;++i){
         for(int j=0;j<h;++j){
             if((x+i)<OLED_X&&(y+j)<OLED_Y){
-                m->bitmap[y+j][x+i]=m->bitmapWW;
                 m->oledNow[y+j][x+i]=0;
             }
         }
@@ -1182,7 +1254,6 @@ void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
             for(int i=0;i<w-2;++i){
                 for(int j=0;j<h-2;++j){
                     if((x+i+1)<OLED_X&&(y+j+1)<OLED_Y){
-                        m->bitmap[y+j+1][x+i+1]=m->bitmapBB;
                         m->oledNow[y+j+1][x+i+1]=1;
                     }
                 }
@@ -1190,6 +1261,29 @@ void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
         }
     }
 }
+//void ISAOLED::writeRect(int x, int y, int w, int h, bool fill){
+//    if (x >= OLED_X || y >= OLED_Y || w == 0 || h == 0) return;
+//    for(int i =0;i<w;++i){
+//        for(int j=0;j<h;++j){
+//            if((x+i)<OLED_X&&(y+j)<OLED_Y){
+//                m->bitmap[y+j][x+i]=m->bitmapWW;
+//                m->oledNow[y+j][x+i]=0;
+//            }
+//        }
+//    }
+//    if(!fill){
+//        if(w>2 && h>2){
+//            for(int i=0;i<w-2;++i){
+//                for(int j=0;j<h-2;++j){
+//                    if((x+i+1)<OLED_X&&(y+j+1)<OLED_Y){
+//                        m->bitmap[y+j+1][x+i+1]=m->bitmapBB;
+//                        m->oledNow[y+j+1][x+i+1]=1;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 //End function of ISAOLED.h=======================================
 
 //Start-button code here =========================================
