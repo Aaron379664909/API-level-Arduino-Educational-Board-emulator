@@ -92,8 +92,6 @@ public:
     QElapsedTimer ttimer;
 
 
-signals:
-    void startObjThreadWork();
 public slots:
     void numButtonPressed();//16 number buttons on press slot
     void numButtonReleased();//16 number buttons on release slot
@@ -118,9 +116,11 @@ public slots:
     int  analogRead(int i);//i pin-number, return 0-1023
     void analogWrite(int i, int value);//i pin-number, value from 0 to 255
 public:
-        void quitExe();
-        void keyPressEvent(QKeyEvent *key);
-        void keyReleaseEvent(QKeyEvent *key);
+        void quitExe();//used in stop-close button to quit application.
+        void keyPressEvent(QKeyEvent *key);//key_W,key_A,key_S,key_D,key_UP,key_DOWN,key_LEFT,key_RIGHT
+        void keyReleaseEvent(QKeyEvent *key);//key_W,key_A,key_S,key_D,key_UP,key_DOWN,key_LEFT,key_RIGHT
+
+//        void paintEvent(QPaintEvent *e);//this is another way to emulate OLED.
 };
 
 #endif // MAINWINDOW_H

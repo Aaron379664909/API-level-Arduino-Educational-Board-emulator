@@ -13,7 +13,7 @@
 #include <QGridLayout>
 #include <QMessageBox>
 #include "qmath.h"
-
+#include <QPainter>
 
 
 MainWindow *m;
@@ -45,6 +45,7 @@ QString msg;
 int oledRow;
 int oledCol;
 
+
 /**
  * @brief MainWindow::MainWindow
  * @param parent
@@ -58,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     loop=true;
+
 
     PixLedOff=QPixmap::fromImage(imgLedOff);
     PixLedOnLow=QPixmap::fromImage(imgLedOnLow);
@@ -177,9 +179,6 @@ MainWindow::MainWindow(QWidget *parent) :
     joy2r=ui->joyLabel2->width()/2-10;
 
     //65*128 OLED init================================================================
-    //QGroupBox* gBox = new QGroupBox(this);
-    //gBox->setGeometry(30,0,270,150);
-
     QBitmap bitmapW(2,2);
     QBitmap bitmapB(2,2);
 
@@ -189,9 +188,9 @@ MainWindow::MainWindow(QWidget *parent) :
     painter.fillRect(0,0,2,2,Qt::black);
     painterw.fillRect(0,0,2,2,Qt::white);
 
-
     bitmapWW=bitmapW;
     bitmapBB=bitmapB;
+    //Usinng labels emulate 128*64 OLED========================
     QGridLayout *pLayout = new QGridLayout();
     for(int i=0;i<OLED_Y;++i){
         for(int j=0;j<OLED_X;++j){
@@ -206,12 +205,18 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
     pLayout->setSpacing(0);
-    //gBox->setLayout(pLayout);
-    //gBox->show();
     ui->groupBoxOLED->setLayout(pLayout);
+    //End Usinng labels emulate 128*64 OLED========================
 
+    //Usinng painter emulate 128*64 OLED, Using paintEvent=============
+//        for(int i=0;i<OLED_Y;++i){
+//            for(int j=0;j<OLED_X;++j){
+//                bitmap[i][j]=bitmapBB;
+//            }
+//        }
+    //End Usinng painter emulate 128*64 OLED, Using paintEvent==========
 
-    //init setup
+    //init setup============================================
     my_usercode=new UserCode();
     connect(my_usercode,SIGNAL(delay(int)),this,SLOT(delay(int)));
     connect(my_usercode,SIGNAL(pinMode(int,int)),this,SLOT(pinMode(int,int)));
@@ -223,6 +228,34 @@ MainWindow::MainWindow(QWidget *parent) :
 //    my_usercode->setup();
 
 }
+/**
+ * @brief MainWindow::paintEvent
+ * @param e
+ * Usinng paintEvent emulate 128*64 OLED
+ */
+//void MainWindow::paintEvent(QPaintEvent *e){
+//    QPainter painterR(this);
+//    QPoint ap;
+//    ap=ui->groupBoxOLED->pos();
+//    int x=ap.rx()+5;
+//    int y=ap.ry()+10;
+
+//    for(int i1=0;i1<OLED_Y;++i1){
+//        for(int j1=0;j1<OLED_X;++j1){
+//                painterR.drawPixmap(x+2*j1,y+2*i1,2,2,bitmap[i1][j1]);
+//                m->oledNow[i1][j1]=1;
+//                m->oledLast[i1][j1]=1;
+//        }
+//    }
+//    for(int i=0;i<OLED_Y;++i){
+//        for(int j=0;j<OLED_X;++j){
+//            if(m->oledNow[i][j]!=m->oledLast[i][j]){
+//                painterR.drawPixmap(x+2*j,y+2*i,2,2,bitmap[i][j]);
+//                oledLast[i][j]=m->oledNow[i][j];
+//            }
+//        }
+//    }
+//}
 
 MainWindow::~MainWindow()
 {
@@ -971,179 +1004,6 @@ void MainWindow::keyReleaseEvent(QKeyEvent *key){
 //end 4 key-arrow buttons events====================================
 
 
-// Below are test cases==========================================
-/**
- * @brief MainWindow::test1.
- * 16 number buttons state
- */
-//void MainWindow::test1(){
-//    digitalWrite(LED1, !button.buttonState(0));
-
-//    if (button.buttonReleased(1)) {
-//    state = !state;
-//    digitalWrite(LED2, state);
-//    }
-//    if(button.buttonPressed(2)){
-//    state1 = !state1;
-//    digitalWrite(LED3, state1);
-//    }
-//    delay(30);
-//}
-///**
-// * @brief MainWindow::test2
-// * using key-left and key-right to control LEDs turn left or right.
-// */
-//void MainWindow::test2(){
-//    rightKey = digitalRead(KEY_RIGHT);
-//    leftKey = digitalRead(KEY_LEFT);
-//    up = !digitalRead(KEY_UP);
-//    down = !digitalRead(KEY_DOWN);
-//    if(up){
-//        digitalWrite(LEDS[lights],LOW);
-//        digitalWrite(LED1,HIGH);
-//        lights=0;
-//        turnOn=true;
-//    }
-//    if(down){
-//        digitalWrite(LEDS[lights],LOW);
-//        lights=0;
-//        turnOn=false;
-//    }
-//    if(turnOn){
-//        //right key
-//        if(rightKey != backupR){
-//          delay(20);
-//          if(rightKey == digitalRead(KEY_RIGHT)){
-//            if(backupR == 0){
-//              digitalWrite(LEDS[lights], LOW);
-//              if(lights==7){
-//                lights=0;
-//                digitalWrite(LEDS[lights], HIGH);
-//               }
-//               else{
-//                  digitalWrite(LEDS[lights+1], HIGH);
-//                  ++lights;
-//                }
-//            }
-//            backupR=rightKey;
-//          }
-//        }
-//        //left key
-//          if(leftKey != backupL){
-//            delay(20);
-//            if(leftKey == digitalRead(KEY_LEFT)){
-//              if(backupL == 0){
-//                digitalWrite(LEDS[lights], 0);
-//                if(lights==0){
-//                  lights=7;
-//                  digitalWrite(LEDS[lights], 1);
-//                }
-//                else{
-//                  digitalWrite(LEDS[lights-1], 1);
-//                  --lights;
-//                }
-//              }
-//              backupL=leftKey;
-//            }
-//          }
-//    }
-//}
-///**
-// * @brief MainWindow::test3
-// * display the potentiometer value on LCD
-// */
-//void MainWindow::test3(){
-//    lcd.clear();
-//    int pot = analogRead(POT);
-//    lcd.print(pot);
-//    delay(250);
-//}
-
-///**
-// * @brief MainWindow::test4
-// * Using the potentiometer, move the diode to the left or right
-// */
-//void MainWindow::test4(){
-//    int pot = analogRead(POT);  light = pot/128;
-//    digitalWrite(LEDS[light], HIGH);
-//    if(light != lastLight){
-//        digitalWrite(LEDS[lastLight], LOW);
-//        lastLight = light;
-//    }
-//}
-
-///**
-// * @brief MainWindow::test5
-// * using potentiometer control the LED's brightness.
-// */
-//void MainWindow::test5(){
-//    lcd.clear();
-//    int pot = analogRead(POT);
-
-//    int i = pot/4;
-//    lcd.print(pot);
-//    analogWrite(LED7,i);
-//    analogWrite(LED6,1000);
-//    delay(250);
-//}
-
-//void MainWindow::test6(){
-//    //
-//    bool up =digitalRead(KEY_UP);
-//    digitalWrite(LED7,up);
-//    bool down = !digitalRead(KEY_DOWN);
-//    digitalWrite(LED8,down);
-//    digitalWrite(LED6,true);
-//    digitalWrite(LED5,false);
-//}
-
-//void MainWindow::test7(){
-//    //
-//    for(int i=0;i<8;++i){
-//      for(int j=0;j<8;++j){
-//        if(leftKey){
-//          led.setLed(i,j,true);
-//          delay(500);
-//        }
-//        else{
-//          led.setLed(i,7-j,true);
-//          delay(500);
-//        }
-//      }
-//      leftKey=!leftKey;
-//    }
-//    led.clearDisplay();
-//    delay(500);
-//}
-//void MainWindow::test8(){
-//    lcd.clear();
-//    int potx = analogRead(JOY2X);
-//    int poty = analogRead(JOY2Y);
-//    lcd.print(potx);
-//    lcd.print(":");
-//    lcd.print(poty);
-//    delay(250);
-//}
-//void MainWindow::test9(){
-//    delay(1000);
-//    ++s1;
-//    if(s1==10){
-//      s1=0;
-//      ++s2;
-//      if(s2==6){
-//        s2=0;
-//        ++m1;
-//        if(m1==10){
-//          m1=0;
-//          ++m2;
-//        }
-//      }
-//    }
-//    sseg.displayDigit(s1,0);
-//    sseg.displayDigit(s2,1);
-//    sseg.displayDigit(m1,2,true);
-//    sseg.displayDigit(m2,3);
-//}
 
 //Begin function of ISAOLED.h=======================================
 /**
@@ -1162,7 +1022,6 @@ void ISAOLED::begin(){
  * This code dos not allow over screen.
  */
 void ISAOLED::write(byte data){
-
     //ASCII[data - 0x20]
     for(int j=0;j<5;++j){
         for(int i=0;i<8;++i){
@@ -1227,10 +1086,10 @@ void ISAOLED::gotoXY(int cx, int cy){
     oledCol=cx;
 }
 /**
- * @brief ISAOLED::renderAll
+ * @brief ISAOLED::renderAll-Using seting label bitmap
  */
 void ISAOLED::renderAll(){
-    while(m->ttimer.elapsed()<100){
+    while(m->ttimer.elapsed()<=100){
         QCoreApplication::processEvents();
         return;
     }
@@ -1245,10 +1104,23 @@ void ISAOLED::renderAll(){
             }
         }
        m->ttimer.restart();
-       gotoXY(0,0);
    }
 
 }
+/**
+ * @brief ISAOLED::renderAll-Using paint update.
+ */
+//void ISAOLED::renderAll(){
+//    while(m->ttimer.elapsed()<=30){
+//        QCoreApplication::processEvents();
+//        return;
+//    }
+//    if(m->ttimer.elapsed()>30){
+//       m->update();
+//       m->ttimer.restart();
+//   }
+
+//}
 /**
  * @brief ISAOLED::setPixel
  * @param x
@@ -1257,11 +1129,9 @@ void ISAOLED::renderAll(){
  */
 void ISAOLED::setPixel(int x, int y, bool v){
     if(v){
-        //m->oledDot[x][y]->setPixmap(m->bitmapWW);
         m->bitmap[y][x]=m->bitmapWW;
         m->oledNow[y][x]=0;
     }else{
-        //m->oledDot[x][y]->setPixmap(m->bitmapBB);
         m->bitmap[y][x]=m->bitmapBB;
         m->oledNow[y][x]=1;
     }
